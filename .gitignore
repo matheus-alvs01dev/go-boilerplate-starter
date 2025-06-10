@@ -1,0 +1,6 @@
+/.idea
+/.docker
+/.vscode
+.DS_Store
+.env
+.env.docker
