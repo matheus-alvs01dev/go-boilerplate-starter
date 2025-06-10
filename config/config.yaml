@@ -1,0 +1,4 @@
+env: ${ENV}
+
+server:
+    apiPort: ${API_PORT}
