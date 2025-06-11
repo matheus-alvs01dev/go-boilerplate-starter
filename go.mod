@@ -4,6 +4,7 @@ go 1.24.4
 
 require (
 	github.com/fatih/color v1.18.0
+	github.com/joho/godotenv v1.5.1
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.20.1
 	go.uber.org/zap v1.27.0

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"embed"
 	"os"
 	"strings"
 
@@ -8,10 +9,13 @@ import (
 	"github.com/spf13/viper"
 )
 
+//go:embed config.yaml
+var _ embed.FS
+
 var cfg *Config //nolint:gochecknoglobals
 
 func LoadConfig() error {
-	viper.AddConfigPath(".")
+	viper.AddConfigPath("./config")
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	if err := viper.ReadInConfig(); err != nil {
@@ -20,6 +24,7 @@ func LoadConfig() error {
 
 	for _, k := range viper.AllKeys() {
 		v := viper.GetString(k)
+
 		if strings.HasPrefix(v, "${") {
 			viper.Set(k, os.ExpandEnv(v))
 		}
@@ -39,4 +44,12 @@ type Config struct {
 
 type ServerConfig struct {
 	apiPort int `mapstructure:"apiPort"`
+}
+
+func GetServerConfig() ServerConfig {
+	return cfg.Server
+}
+
+func GetEnv() string {
+	return cfg.Env
 }
