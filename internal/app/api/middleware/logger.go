@@ -2,12 +2,12 @@ package middleware
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	echomiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/matheus-alvs01dev/go-boilerplate/pkg/log"
 )
 
-func Logger(logger log.Logger) func(c echo.Context, v middleware.RequestLoggerValues) error {
-	return func(c echo.Context, v middleware.RequestLoggerValues) error {
+func Logger(logger log.Logger) func(c echo.Context, v echomiddleware.RequestLoggerValues) error {
+	return func(c echo.Context, v echomiddleware.RequestLoggerValues) error {
 		logger.Info("request",
 			log.Any("URI", v.URI),
 			log.Any("status", v.Status),

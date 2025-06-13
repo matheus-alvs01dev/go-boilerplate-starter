@@ -2,3 +2,6 @@ env: ${ENV}
 
 server:
     apiPort: ${API_PORT}
+
+db:
+    dsn: ${DB_DSN}

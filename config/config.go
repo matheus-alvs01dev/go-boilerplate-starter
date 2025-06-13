@@ -38,12 +38,17 @@ func LoadConfig() error {
 }
 
 type Config struct {
-	Env    string       `mapstructure:"env"`
-	Server ServerConfig `mapstructure:"server"`
+	Env    string         `mapstructure:"env"`
+	Server ServerConfig   `mapstructure:"server"`
+	DB     DatabaseConfig `mapstructure:"db"`
 }
 
 type ServerConfig struct {
 	apiPort int `mapstructure:"apiPort"`
+}
+
+type DatabaseConfig struct {
+	Dsn string `mapstructure:"dsn"`
 }
 
 func GetServerConfig() ServerConfig {
@@ -52,4 +57,8 @@ func GetServerConfig() ServerConfig {
 
 func GetEnv() string {
 	return cfg.Env
+}
+
+func GetDBConfig() DatabaseConfig {
+	return cfg.DB
 }
