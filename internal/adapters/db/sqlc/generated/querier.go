@@ -7,13 +7,13 @@ package sqlc
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) error
-	DeleteUser(ctx context.Context, id uuid.UUID) error
-	GetUserByID(ctx context.Context, id uuid.UUID) (GetUserByIDRow, error)
+	DeleteUser(ctx context.Context, id pgtype.UUID) error
+	GetUserByID(ctx context.Context, id pgtype.UUID) (GetUserByIDRow, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
 }
 

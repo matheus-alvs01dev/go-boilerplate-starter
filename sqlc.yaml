@@ -11,23 +11,47 @@ sql:
         emit_prepared_queries: true
         emit_interface: true
         overrides:
-          - db_type: "numeric"
-            go_type: "github.com/shopspring/decimal.Decimal"
-          - db_type: "decimal"
-            go_type: "github.com/shopspring/decimal.Decimal"
-
-          - db_type: "timestamp"
-            go_type: "time.Time"
-          - db_type: "timestamptz"
-            go_type: "time.Time"
-
-          - db_type: "date"
-            go_type: "time.Time"
-
-          - db_type: "jsonb"
-            go_type: "encoding/json.RawMessage"
-          - db_type: "json"
-            go_type: "encoding/json.RawMessage"
-
-          - db_type: "uuid"
-            go_type: "github.com/google/uuid.UUID"
+        # NUMERIC/DECIMAL -> shopspring/decimal.Decimal
+        - db_type: "pg_catalog.numeric"
+          go_type:
+            import: "github.com/shopspring/decimal"
+            type: "Decimal"
+        - db_type: "pg_catalog.numeric"
+          nullable: true
+          go_type:
+            import: "github.com/shopspring/decimal"
+            type: "Decimal"
+            pointer: true
+        # TIMESTAMP -> time.Time
+        - db_type: "timestamp"
+          go_type:
+            import: "time"
+            type: "Time"
+        - db_type: "timestamp"
+          nullable: true
+          go_type:
+            import: "time"
+            type: "Time"
+            pointer: true
+        # TIMESTAMPTZ -> time.Time
+        - db_type: "timestamptz"
+          go_type:
+            import: "time"
+            type: "Time"
+        - db_type: "timestamptz"
+          nullable: true
+          go_type:
+            import: "time"
+            type: "Time"
+            pointer: true
+        # DATE -> time.Time
+        - db_type: "date"
+          go_type:
+            import: "time"
+            type: "Time"
+        - db_type: "date"
+          nullable: true
+          go_type:
+            import: "time"
+            type: "Time"
+            pointer: true

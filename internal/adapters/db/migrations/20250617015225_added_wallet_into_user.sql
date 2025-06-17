@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-ALTER TABLE users add column wallet numeric(20, 2) NOT NULL DEFAULT 0.00;
+ALTER TABLE users add column wallet decimal(20, 2) NOT NULL DEFAULT 0.00;
 -- +goose StatementEnd
 
 -- +goose Down

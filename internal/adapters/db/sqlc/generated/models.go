@@ -5,18 +5,18 @@
 package sqlc
 
 import (
-	"database/sql"
 	"time"
 
-	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/shopspring/decimal"
 )
 
 type User struct {
-	ID        uuid.UUID
+	ID        pgtype.UUID
 	Name      string
 	Email     string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt sql.NullTime
-	Wallet    string
+	DeletedAt *time.Time
+	Wallet    decimal.Decimal
 }

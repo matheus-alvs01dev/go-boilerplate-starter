@@ -9,7 +9,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/shopspring/decimal"
 )
 
 const createUser = `-- name: CreateUser :exec
@@ -20,11 +21,11 @@ VALUES ($1, $2, $3)
 type CreateUserParams struct {
 	Name   string
 	Email  string
-	Wallet string
+	Wallet decimal.Decimal
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
-	_, err := q.exec(ctx, q.createUserStmt, createUser, arg.Name, arg.Email, arg.Wallet)
+	_, err := q.db.Exec(ctx, createUser, arg.Name, arg.Email, arg.Wallet)
 	return err
 }
 
@@ -35,8 +36,8 @@ WHERE id = $1
   AND deleted_at IS NULL
 `
 
-func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
-	_, err := q.exec(ctx, q.deleteUserStmt, deleteUser, id)
+func (q *Queries) DeleteUser(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
 }
 
@@ -54,16 +55,16 @@ WHERE id = $1
 `
 
 type GetUserByIDRow struct {
-	ID        uuid.UUID
+	ID        pgtype.UUID
 	Name      string
 	Email     string
-	Wallet    string
+	Wallet    decimal.Decimal
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (GetUserByIDRow, error) {
-	row := q.queryRow(ctx, q.getUserByIDStmt, getUserByID, id)
+func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (GetUserByIDRow, error) {
+	row := q.db.QueryRow(ctx, getUserByID, id)
 	var i GetUserByIDRow
 	err := row.Scan(
 		&i.ID,
@@ -90,12 +91,12 @@ WHERE id = $4
 type UpdateUserParams struct {
 	Name   string
 	Email  string
-	Wallet string
-	ID     uuid.UUID
+	Wallet decimal.Decimal
+	ID     pgtype.UUID
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
-	_, err := q.exec(ctx, q.updateUserStmt, updateUser,
+	_, err := q.db.Exec(ctx, updateUser,
 		arg.Name,
 		arg.Email,
 		arg.Wallet,
