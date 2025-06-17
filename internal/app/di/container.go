@@ -18,3 +18,11 @@ func NewContainer(db *pgxpool.Pool, logger log.Logger) *Container {
 		db:     db,
 	}
 }
+
+func (c *Container) DB() *pgxpool.Pool {
+	return c.db
+}
+
+func (c *Container) Logger() log.Logger {
+	return c.logger
+}

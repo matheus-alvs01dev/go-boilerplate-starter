@@ -9,7 +9,11 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Setup(ctx context.Context) (*di.Container, error) {
+type Setup struct {
+	Container *di.Container
+}
+
+func Start(ctx context.Context) (*Setup, error) {
 	if err := config.LoadConfig(); err != nil {
 		return nil, errors.Wrap(err, "load configs")
 	}
@@ -24,5 +28,5 @@ func Setup(ctx context.Context) (*di.Container, error) {
 		return nil, errors.Wrap(err, "setup database")
 	}
 
-	return di.NewContainer(dbClient, logger), nil
+	return &Setup{Container: di.NewContainer(dbClient.DB(), logger)}, nil
 }
