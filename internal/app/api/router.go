@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/matheus-alvs01dev/go-boilerplate/internal/app/api/ctrl"
 	"github.com/matheus-alvs01dev/go-boilerplate/internal/app/api/middleware"
 	"github.com/matheus-alvs01dev/go-boilerplate/pkg/log"
 	"github.com/pkg/errors"
@@ -83,4 +84,18 @@ func (s *Server) Shutdown() error {
 	s.logger.Info("Server shutdown gracefully")
 
 	return nil
+}
+
+func (s *Server) ConfigureRoutes(
+	userController *ctrl.UserController,
+) {
+	s.router.GET("/health", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+	})
+
+	userGroup := s.router.Group("/users")
+	userGroup.POST("", userController.Create)
+	userGroup.GET("/:id", userController.GetByID)
+	userGroup.PUT("/:id", userController.Update)
+	userGroup.DELETE("/:id", userController.Delete)
 }

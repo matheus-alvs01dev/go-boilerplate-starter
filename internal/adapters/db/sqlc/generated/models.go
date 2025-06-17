@@ -7,12 +7,12 @@ package sqlc
 import (
 	"time"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
 type User struct {
-	ID        pgtype.UUID
+	ID        uuid.UUID
 	Name      string
 	Email     string
 	CreatedAt time.Time

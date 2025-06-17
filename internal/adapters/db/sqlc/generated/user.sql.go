@@ -9,7 +9,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
@@ -36,7 +36,7 @@ WHERE id = $1
   AND deleted_at IS NULL
 `
 
-func (q *Queries) DeleteUser(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
 }
@@ -55,7 +55,7 @@ WHERE id = $1
 `
 
 type GetUserByIDRow struct {
-	ID        pgtype.UUID
+	ID        uuid.UUID
 	Name      string
 	Email     string
 	Wallet    decimal.Decimal
@@ -63,7 +63,7 @@ type GetUserByIDRow struct {
 	UpdatedAt time.Time
 }
 
-func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (GetUserByIDRow, error) {
+func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (GetUserByIDRow, error) {
 	row := q.db.QueryRow(ctx, getUserByID, id)
 	var i GetUserByIDRow
 	err := row.Scan(
@@ -92,7 +92,7 @@ type UpdateUserParams struct {
 	Name   string
 	Email  string
 	Wallet decimal.Decimal
-	ID     pgtype.UUID
+	ID     uuid.UUID
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
