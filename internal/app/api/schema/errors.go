@@ -1,6 +1,9 @@
 package schema
 
-import "net/http"
+import (
+	"github.com/matheus-alvs01dev/go-boilerplate/pkg/helpers"
+	"net/http"
+)
 
 type ValidationError struct {
 	Field      *string `json:"field"`
@@ -15,8 +18,9 @@ func NewValidationError(message string) *ValidationError {
 	}
 }
 
-func (ve ValidationError) WithField(field string) *ValidationError {
-	ve.Field = &field
+func (ve ValidationError) WithField(req any, field string) *ValidationError {
+	fieldJson := helpers.JSONFieldName(req, field)
+	ve.Field = &fieldJson
 
 	return &ve
 }
@@ -31,6 +35,6 @@ func (ve ValidationError) Error() string {
 	if ve.Field != nil {
 		return *ve.Field + ": " + ve.Message
 	}
-	
+
 	return ve.Message
 }

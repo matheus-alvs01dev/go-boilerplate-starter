@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/matheus-alvs01dev/go-boilerplate/config"
 	"github.com/matheus-alvs01dev/go-boilerplate/internal/app/api/ctrl"
 	"github.com/matheus-alvs01dev/go-boilerplate/internal/app/api/middleware"
 	"github.com/matheus-alvs01dev/go-boilerplate/pkg/log"
@@ -21,15 +22,17 @@ type Server struct {
 }
 
 func NewServer(ctx context.Context, logger log.Logger) *Server {
+	cfgs := config.GetServerConfig()
 	svr := &Server{
-		ctx:    ctx,
-		router: echo.New(),
-		logger: logger,
+		ctx:     ctx,
+		router:  echo.New(),
+		logger:  logger,
+		apiPort: cfgs.APIPort,
 	}
 
 	svr.router.HideBanner = true
-	svr.router.HidePort = true
 	svr.router.Use(echomiddleware.Recover())
+	svr.router.HTTPErrorHandler = middleware.NewErrorHandler(logger).Handle
 	svr.router.Use(echomiddleware.RequestLoggerWithConfig(echomiddleware.RequestLoggerConfig{
 		LogURI:        true,
 		LogStatus:     true,

@@ -34,6 +34,8 @@ func run(ctx context.Context) error {
 	)
 
 	server := api.NewServer(ctx, stp.Container.Logger())
+	server.ConfigureRoutes(stp.Container.UserController())
+
 	if err := server.Serve(); err != nil {
 		return errors.Wrap(err, "start server")
 	}

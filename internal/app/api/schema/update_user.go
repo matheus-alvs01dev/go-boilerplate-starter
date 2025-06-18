@@ -15,19 +15,19 @@ type UpdateUserRequest struct {
 func (r UpdateUserRequest) Validate() error {
 	_, err := uuid.Parse(r.ID)
 	if err != nil {
-		return NewValidationError("id is required").WithField("id")
+		return NewValidationError("id is required").WithField(r, "id")
 	}
 
 	if r.Name == "" {
-		return NewValidationError("name is required").WithField("name")
+		return NewValidationError("name is required").WithField(r, "name")
 	}
 
 	if r.Email == "" {
-		return NewValidationError("email is required").WithField("email")
+		return NewValidationError("email is required").WithField(r, "email")
 	}
 
-	if r.Wallet.IsZero() {
-		return NewValidationError("wallet must be greater than zero").WithField("wallet")
+	if r.Wallet.LessThanOrEqual(decimal.Zero) {
+		return NewValidationError("wallet must be greater than zero").WithField(r, "wallet")
 	}
 
 	return nil

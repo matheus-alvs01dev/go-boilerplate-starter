@@ -33,19 +33,27 @@ func (uc *UserController) Create(c echo.Context) error {
 		return err
 	}
 
+	if err := req.Validate(); err != nil {
+		return errors.Wrap(err, "validation")
+	}
+
 	user := entity.NewUser(req.Name, req.Email, req.Wallet)
 	createdUser, err := uc.service.Create(c.Request().Context(), user)
 	if err != nil {
 		return errors.Wrap(err, "svc")
 	}
 
-	return c.JSON(http.StatusCreated, createdUser)
+	return c.JSON(http.StatusCreated, schema.NewCreateUserResponse(createdUser))
 }
 
 func (uc *UserController) Update(c echo.Context) error {
 	var req schema.UpdateUserRequest
 	if err := c.Bind(&req); err != nil {
 		return err
+	}
+
+	if err := req.Validate(); err != nil {
+		return errors.Wrap(err, "validation")
 	}
 
 	userID := uuid.MustParse(req.ID)
@@ -64,7 +72,7 @@ func (uc *UserController) GetByID(c echo.Context) error {
 
 	userID, err := uuid.Parse(userIDStr)
 	if err != nil {
-		return schema.NewValidationError("id is invalid").WithField("id")
+		return schema.NewValidationError("id is invalid")
 	}
 
 	user, err := uc.service.GetByID(c.Request().Context(), userID)
@@ -80,7 +88,7 @@ func (uc *UserController) Delete(c echo.Context) error {
 
 	userID, err := uuid.Parse(userIDStr)
 	if err != nil {
-		return schema.NewValidationError("id is invalid").WithField("id")
+		return schema.NewValidationError("id is invalid")
 	}
 
 	if err := uc.service.Delete(c.Request().Context(), userID); err != nil {

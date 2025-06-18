@@ -44,7 +44,7 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	apiPort int `mapstructure:"apiPort"`
+	APIPort uint16 `mapstructure:"apiPort"`
 }
 
 type DatabaseConfig struct {

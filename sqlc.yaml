@@ -5,7 +5,7 @@ sql:
     queries: "/internal/adapters/db/sqlc/queries/*.sql"
     gen:
       go:
-        out: "/internal/adapters/db/sqlc/generated"
+        out: "/internal/adapters/db/sqlc"
         package: "sqlc"
         sql_package: "pgx/v5"
         emit_prepared_queries: true

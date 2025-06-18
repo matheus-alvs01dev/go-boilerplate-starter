@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/matheus-alvs01dev/go-boilerplate/internal/domain/entity"
+	"github.com/pkg/errors"
 )
 
 type UserRepository interface {
@@ -24,17 +25,35 @@ func NewUserService(repo UserRepository) *UserService {
 }
 
 func (s *UserService) Create(ctx context.Context, user *entity.User) (*entity.User, error) {
-	panic("implement me")
+	user, err := s.repo.Create(ctx, user)
+	if err != nil {
+		return nil, errors.Wrap(err, "repo")
+	}
+
+	return user, nil
 }
 
 func (s *UserService) GetByID(ctx context.Context, id uuid.UUID) (*entity.User, error) {
-	panic("implement me")
+	user, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, errors.Wrap(err, "repo")
+	}
+
+	return user, nil
 }
 
 func (s *UserService) Update(ctx context.Context, user *entity.User) error {
-	panic("implement me")
+	if err := s.repo.Update(ctx, user); err != nil {
+		return errors.Wrap(err, "repo")
+	}
+
+	return nil
 }
 
 func (s *UserService) Delete(ctx context.Context, id uuid.UUID) error {
-	panic("implement me")
+	if err := s.repo.Delete(ctx, id); err != nil {
+		return errors.Wrap(err, "repo")
+	}
+
+	return nil
 }

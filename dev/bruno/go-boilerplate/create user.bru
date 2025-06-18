@@ -1,0 +1,19 @@
+meta {
+  name: create user
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/users
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "John Doe",
+    "email": "namse@emdswdddail.com",
+    "wallet": 100.58
+  }
+}
