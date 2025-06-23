@@ -3,6 +3,7 @@ package middleware
 import (
 	"database/sql"
 	"github.com/labstack/echo/v4"
+	"github.com/matheus-alvs01dev/go-boilerplate/config"
 	"github.com/matheus-alvs01dev/go-boilerplate/internal/app/api/schema"
 	"github.com/matheus-alvs01dev/go-boilerplate/pkg/log"
 	"github.com/pkg/errors"
@@ -61,6 +62,12 @@ func (h *ErrorHandler) Handle(err error, c echo.Context) {
 
 			httpErr.InvalidFields[*ve.Field] = ve.Message
 		}
+	}
+
+	if config.GetEnv() != "local" && statusCode >= http.StatusInternalServerError {
+		h.logger.Error("http error ocurred", err)
+		httpErr.Message = "Internal Server Error"
+		httpErr.InvalidFields = nil
 	}
 
 	if err := c.JSON(statusCode, httpErr); err != nil {
