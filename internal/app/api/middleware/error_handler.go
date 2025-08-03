@@ -2,12 +2,13 @@ package middleware
 
 import (
 	"database/sql"
-	"github.com/labstack/echo/v4"
+	"encoding/json"
+	"net/http"
+
 	"github.com/matheus-alvs01dev/go-boilerplate/config"
 	"github.com/matheus-alvs01dev/go-boilerplate/internal/app/api/schema"
 	"github.com/matheus-alvs01dev/go-boilerplate/pkg/log"
 	"github.com/pkg/errors"
-	"net/http"
 )
 
 type HTTPError struct {
@@ -26,15 +27,23 @@ func NewErrorHandler(logger log.Logger) *ErrorHandler {
 	}
 }
 
-func (h *ErrorHandler) Handle(err error, c echo.Context) {
-	if c.Response().Committed {
-		return
-	}
+// ErrorHandler middleware for Chi router
+func (h *ErrorHandler) Handle(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if err := recover(); err != nil {
+				h.handleError(w, r, errors.Errorf("panic: %v", err))
+			}
+		}()
+		next.ServeHTTP(w, r)
+	})
+}
 
+func (h *ErrorHandler) handleError(w http.ResponseWriter, r *http.Request, err error) {
 	statusCode := http.StatusInternalServerError
 	httpErr := &HTTPError{
-		Message:       "Internal Server Error",
-		RequestID:     c.Response().Header().Get(echo.HeaderXRequestID),
+		Message:       err.Error(),
+		RequestID:     r.Header.Get("X-Request-ID"),
 		InvalidFields: nil,
 	}
 
@@ -42,13 +51,6 @@ func (h *ErrorHandler) Handle(err error, c echo.Context) {
 	case errors.Is(err, sql.ErrNoRows):
 		statusCode = http.StatusNotFound
 		httpErr.Message = "Resource not found"
-
-	case isEchoHTTPError(err):
-		var ee *echo.HTTPError
-		errors.As(err, &ee)
-		statusCode = ee.Code
-
-		httpErr.Message = ee.Error()
 
 	case isSchemaValidationError(err):
 		var ve *schema.ValidationError
@@ -65,20 +67,16 @@ func (h *ErrorHandler) Handle(err error, c echo.Context) {
 	}
 
 	if config.GetEnv() != "local" && statusCode >= http.StatusInternalServerError {
-		h.logger.Error("http error ocurred", err)
+		h.logger.Error("http error occurred", err)
 		httpErr.Message = "Internal Server Error"
 		httpErr.InvalidFields = nil
 	}
 
-	if err := c.JSON(statusCode, httpErr); err != nil {
-		h.logger.Error("write out", err, log.Any("err", httpErr))
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	if err := json.NewEncoder(w).Encode(httpErr); err != nil {
+		h.logger.Error("failed to write error response", err, log.Any("err", httpErr))
 	}
-}
-
-func isEchoHTTPError(err error) bool {
-	var ee *echo.HTTPError
-
-	return errors.As(err, &ee)
 }
 
 func isSchemaValidationError(err error) bool {

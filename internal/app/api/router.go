@@ -3,45 +3,50 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/labstack/echo/v4"
-	echomiddleware "github.com/labstack/echo/v4/middleware"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/go-chi/chi/v5"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/matheus-alvs01dev/go-boilerplate/config"
 	"github.com/matheus-alvs01dev/go-boilerplate/internal/app/api/ctrl"
 	"github.com/matheus-alvs01dev/go-boilerplate/internal/app/api/middleware"
 	"github.com/matheus-alvs01dev/go-boilerplate/pkg/log"
 	"github.com/pkg/errors"
-	"net/http"
-	"time"
 )
 
 type Server struct {
 	ctx     context.Context
-	router  *echo.Echo
+	router  chi.Router
 	logger  log.Logger
 	apiPort uint16
+	server  *http.Server
 }
 
 func NewServer(ctx context.Context, logger log.Logger) *Server {
 	cfgs := config.GetServerConfig()
+	
+	router := chi.NewRouter()
+	
+	router.Use(chimiddleware.Recoverer)
+	router.Use(middleware.NewErrorHandler(logger).Handle)
+	router.Use(middleware.Logger(logger))
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"*"},
+	}))
+	
 	svr := &Server{
 		ctx:     ctx,
-		router:  echo.New(),
+		router:  router,
 		logger:  logger,
 		apiPort: cfgs.APIPort,
 	}
-
-	svr.router.HideBanner = true
-	svr.router.Use(echomiddleware.Recover())
-	svr.router.HTTPErrorHandler = middleware.NewErrorHandler(logger).Handle
-	svr.router.Use(echomiddleware.RequestLoggerWithConfig(echomiddleware.RequestLoggerConfig{
-		LogURI:        true,
-		LogStatus:     true,
-		LogValuesFunc: middleware.Logger(svr.logger),
-	}))
-
-	svr.router.Use(echomiddleware.CORSWithConfig(echomiddleware.CORSConfig{
-		AllowOrigins: []string{"*"}, // Allow all origins for development purposes
-	}))
 
 	return svr
 }
@@ -49,56 +54,62 @@ func NewServer(ctx context.Context, logger log.Logger) *Server {
 func (s *Server) Serve() error {
 	const timeout = 30 * time.Second
 
-	srv := &http.Server{
+	s.server = &http.Server{
 		Addr:         fmt.Sprintf("0.0.0.0:%d", s.apiPort),
 		Handler:      s.router,
 		WriteTimeout: timeout,
 		ReadTimeout:  timeout,
 	}
 
+	serverErr := make(chan error, 1)
+
 	go func() {
-		s.logger.Info("Starting server...")
-		if err := s.router.Start(srv.Addr); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			return
+		s.logger.Info(fmt.Sprintf("Starting server on port %d...", s.apiPort))
+		if err := s.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			serverErr <- fmt.Errorf("server failed to start: %w", err)
 		}
 	}()
 
-	<-s.ctx.Done()
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 
-	if err := s.Shutdown(); err != nil {
+	select {
+	case err := <-serverErr:
 		return err
+	case sig := <-signalChan:
+		s.logger.Info(fmt.Sprintf("Received signal: %v. Starting graceful shutdown...", sig))
+		return s.Shutdown()
 	}
-
-	s.logger.Info("Server stopped gracefully")
-
-	return nil
 }
 
 func (s *Server) Shutdown() error {
-	s.logger.Info("Shutdown command received, shutting down server...")
-
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	if err := s.router.Shutdown(shutdownCtx); err != nil {
-		return err
+	s.logger.Info("Shutting down server...")
+
+	if err := s.server.Shutdown(ctx); err != nil {
+		s.logger.Error(fmt.Sprintf("Server shutdown failed: %v", err))
+		return fmt.Errorf("server shutdown failed: %w", err)
 	}
 
-	s.logger.Info("Server shutdown gracefully")
-
+	s.logger.Info("Server shutdown completed successfully")
 	return nil
 }
 
 func (s *Server) ConfigureRoutes(
 	userController *ctrl.UserController,
 ) {
-	s.router.GET("/health", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+	s.router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status": "ok"}`))
 	})
 
-	userGroup := s.router.Group("/users")
-	userGroup.POST("", userController.Create)
-	userGroup.GET("/:id", userController.GetByID)
-	userGroup.PUT("/:id", userController.Update)
-	userGroup.DELETE("/:id", userController.Delete)
+	s.router.Route("/users", func(r chi.Router) {
+		r.Post("/", userController.Create)
+		r.Get("/{id}", userController.GetByID)
+		r.Put("/{id}", userController.Update)
+		r.Delete("/{id}", userController.Delete)
+	})
 }

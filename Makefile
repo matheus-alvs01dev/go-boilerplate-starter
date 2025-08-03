@@ -1,3 +1,7 @@
+install-deps:
+	@go install go.uber.org/mock/mockgen@latest
+	@go install github.com/pressly/goose/v3/cmd/goose@latest
+	@go install github.com/air-verse/air@latest
 server:
 	@go run cmd/server/main.go
 
