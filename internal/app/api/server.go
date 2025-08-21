@@ -82,7 +82,9 @@ func (s *Server) Serve() error {
 }
 
 func (s *Server) Shutdown() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	const shutdownTimeout = 10 * time.Second
+
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
 
 	s.logger.Info("Shutting down server...")

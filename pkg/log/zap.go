@@ -87,42 +87,6 @@ func (l *ZapLoggerAdapter) Write(p []byte) (n int, err error) {
 }
 
 func (l *ZapLoggerAdapter) WithContext(ctx context.Context) Logger {
-
-	// append traceable fields
-	// if v := ctx.Value(logger.label.RequestID); v != nil {
-	//	zapFields = append(zapFields, zap.Any(logger.label.RequestID, v))
-	// }
-	// if v := ctx.Value(logger.label.MessageID); v != nil {
-	//	zapFields = append(zapFields, zap.Any(logger.label.MessageID, v))
-	// }
-	// if v := ctx.Value(logger.label.TraceID); v != nil {
-	//	zapFields = append(zapFields, zap.Any(logger.label.LoggerTraceID, v))
-	// }
-	// if v := ctx.Value(logger.label.SpanID); v != nil {
-	//	zapFields = append(zapFields, zap.Any(logger.label.LoggerSpanID, v))
-	// }
-
-	// trace-id
-	// if logger.tracer != nil {
-	//	if span := logger.tracer.SpanFromContext(ctx); span != nil {
-	//		if span.TraceID() != "" {
-	//			zapFields = append(zapFields, zap.Any("trace_id", span.TraceID()))
-	//			zapFields = append(zapFields, zap.Any("dd.trace_id", span.TraceID()))
-	//		}
-	//		if span.SpanID() != "" {
-	//			zapFields = append(zapFields, zap.Any("span_id", span.SpanID()))
-	//			zapFields = append(zapFields, zap.Any("dd.span_id", span.SpanID()))
-	//		}
-	//
-	//		// set span error
-	//		for _, v := range fields {
-	//			if v.Key == "error" {
-	//				span.SetStatus(tracer.Error, v.Data.(string))
-	//			}
-	//		}
-	//	}
-	// }
-
 	return l
 }
 

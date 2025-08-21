@@ -292,5 +292,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Zap](https://github.com/uber-go/zap) - Logging
 - [Air](https://github.com/air-verse/air) - Hot reload
 - [Mise](https://mise.jdx.dev/) - Tool management
-- [Prometheus](https://prometheus.io/) - Monitoring
-- [Grafana](https://grafana.com/) - Dashboards

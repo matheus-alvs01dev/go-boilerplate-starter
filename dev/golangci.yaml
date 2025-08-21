@@ -1,83 +1,79 @@
-# The version key is now a string and is used by golangci-lint
-# to determine the configuration schema.
-version: "2"
+version: 2
 
-# The 'output' settings from v1 are now nested under the 'run' section.
 run:
   timeout: 5m
   issues-exit-code: 1
-  tests: true
-  output:
-    format: colored-line-number
-    print-issued-lines: true
-    print-linter-name: true
+  tests: false
+  skip-dirs:
+    - pkg
 
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+linters-settings:
+  govet:
+    shadow:
+      strict: true
+  gocyclo:
+    min-complexity: 10
+  dupl:
+    threshold: 100
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+  misspell:
+    locale: US
+  lll:
+    line-length: 120
+  goimports:
+    local-prefixes: github.com/matheus-alvs01dev/go-boilerplate
+  gocritic:
+    enabled-tags:
+      - performance
+      - style
+      - experimental
+    disabled-checks:
+      - wrapperFunc
 linters:
-  default: all
-  disable:
-    - wsl
-    - revive
-  settings:
-    govet:
-      shadow:
-        strict: true
-    revive:
-      min-confidence: 0.8
-    gocyclo:
-      min-complexity: 10
-    dupl:
-      threshold: 100
-    goconst:
-      min-len: 3
-      min-occurrences: 3
-    misspell:
-      locale: US
-    lll:
-      line-length: 120
-    gocritic:
-      enabled-tags:
-        - performance
-        - style
-        - experimental
-      disabled-checks:
-        - wrapperFunc
-    gosec:
-      excludes:
-        - G404 # Exclude weak random number generator warnings for non-crypto usage
-    varnamelen:
-      min-name-length: 3
-      ignore-names:
-        - i
-        - id
-        - db
-        - tx
-      ignore-decls:
-        - w http.ResponseWriter
-        - r *http.Request
+  enable:
+    - bodyclose
+    - dogsled
+    - dupl
+    - errcheck
+    - exhaustive
+    - funlen
+    - gochecknoinits
+    - goconst
+    - gocritic
+    - gocyclo
+    - mnd
+    - goprintffuncname
+    - gosec
+    - govet
+    - ineffassign
+    - lll
+    - misspell
+    - nakedret
+    - noctx
+    - nolintlint
+    - rowserrcheck
+    - staticcheck
+    - unconvert
+    - unparam
+    - unused
+    - whitespace
+  disable: []
 
-# NOTE: The 'issues.exclude-rules' key is marked as deprecated in the migration guide.
-# However, it remains functional and is often the most practical way to create
-# complex, targeted exclusion rules. The recommended alternative is using the 'issues.exclude'
-# key with regular expressions that match the full issue message, which can be more verbose.
-# For now, your existing rules have been preserved as they are.
 issues:
-  exclude-dirs:
-    - "./pkg"
-
   exclude-rules:
-    - path: _test\.go
-      linters:
-        - mnd
-        - funlen
-        - goconst
-        - gosec
     - path: cmd/
       linters:
         - gochecknoinits
     - text: "weak cryptographic primitive"
       linters:
         - gosec
-
   exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
