@@ -1,7 +1,12 @@
 env: ${ENV}
 
 server:
-    apiPort: ${API_PORT}
+  apiPort: ${API_PORT}
 
 db:
-    dsn: ${DB_DSN}
+  host: ${DB_HOST}
+  port: ${DB_PORT}
+  user: ${DB_USER}
+  password: ${DB_PASSWORD}
+  name: ${DB_NAME}
+  url: ${DATABASE_URL}

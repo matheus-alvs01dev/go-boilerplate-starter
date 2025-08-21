@@ -48,17 +48,22 @@ type ServerConfig struct {
 }
 
 type DatabaseConfig struct {
-	Dsn string `mapstructure:"dsn"`
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
+	User     string `mapstructure:"user"`
+	Password string `mapstructure:"password"`
+	Name     string `mapstructure:"name"`
+	URL      string `mapstructure:"url"`
 }
 
-func GetServerConfig() ServerConfig {
-	return cfg.Server
+func GetDbConfig() DatabaseConfig {
+	return cfg.DB
 }
 
 func GetEnv() string {
 	return cfg.Env
 }
 
-func GetDBConfig() DatabaseConfig {
-	return cfg.DB
+func GetServerConfig() ServerConfig {
+	return cfg.Server
 }

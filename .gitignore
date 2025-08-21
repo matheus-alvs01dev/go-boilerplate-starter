@@ -6,3 +6,7 @@
 .env.docker
 /tmp
 /bin
+
+# Mise
+.mise.local.toml
+.rtx.local.toml

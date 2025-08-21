@@ -23,7 +23,7 @@ func Start(ctx context.Context) (*Setup, error) {
 		return nil, errors.Wrap(err, "initialize logger")
 	}
 
-	dbClient, err := db.NewClient(config.GetDBConfig().Dsn)
+	dbClient, err := db.NewClient(config.GetDbConfig().URL)
 	if err != nil {
 		return nil, errors.Wrap(err, "setup database")
 	}
