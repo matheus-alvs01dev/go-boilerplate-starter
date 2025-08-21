@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/matheus-alvs01dev/go-boilerplate/config"
 	"github.com/matheus-alvs01dev/go-boilerplate/internal/app/api"
@@ -34,7 +35,7 @@ func run(ctx context.Context) error {
 	)
 
 	server := api.NewServer(ctx, stp.Container.Logger())
-	server.ConfigureRoutes(stp.Container.UserController())
+	server.ConfigureRoutes()
 
 	if err := server.Serve(); err != nil {
 		return errors.Wrap(err, "start server")

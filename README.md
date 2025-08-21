@@ -121,7 +121,7 @@ Use `mise tasks` to see all available tasks:
 
 ### Database
 
-- `mise run migration-create name=<name>` - Create new migration
+- `mise run migration-create nome_of_your_migration` - Create new migration
 - `mise run migration-up` - Run pending migrations
 - `mise run migration-down` - Rollback last migration
 - `mise run migration-status` - Check migration status
@@ -150,7 +150,7 @@ Migrations are located in `internal/adapters/db/migrations/` and managed with Go
 
 ```bash
 # Create a new migration
-mise run migration-create name=create_users_table
+mise run migration-create create_users_table
 
 # Run migrations
 mise run migration-up

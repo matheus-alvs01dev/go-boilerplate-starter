@@ -1,7 +1,6 @@
 [tools]
 go = "1.24.4"
 node = "20"
-sqlc = "latest"
 golangci-lint = "2.4.0"
 
 [env]
@@ -16,7 +15,8 @@ description = "Install Go development dependencies"
 run = [
   "go install go.uber.org/mock/mockgen@latest",
   "go install github.com/pressly/goose/v3/cmd/goose@latest", 
-  "go install github.com/air-verse/air@latest"
+  "go install github.com/air-verse/air@latest",
+  "go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest"
 ]
 
 [tasks.server]
@@ -28,8 +28,8 @@ description = "Run the server in development mode with air"
 run = "air"
 
 [tasks.migration-create]
-description = "Create a new database migration"
-run = "goose -dir internal/adapters/db/migrations/ create ${name:-migration} sql"
+description = "Create a new database migration (use: mise migration-create nome_of_your_migration)"
+run = "bash -c 'goose -dir internal/adapters/db/migrations create \"${1:-migration}\" sql' -- \"$@\""
 
 [tasks.migration-up]
 description = "Run database migrations up"

@@ -35,6 +35,7 @@ func (h *ErrorHandler) Handle(next http.Handler) http.Handler {
 				h.handleError(w, r, errors.Errorf("panic: %v", err))
 			}
 		}()
+
 		next.ServeHTTP(w, r)
 	})
 }
@@ -56,6 +57,7 @@ func (h *ErrorHandler) handleError(w http.ResponseWriter, r *http.Request, err e
 		var ve *schema.ValidationError
 		errors.As(err, &ve)
 		statusCode = ve.StatusCode
+
 		httpErr.Message = ve.Error()
 		if ve.Field != nil {
 			if httpErr.InvalidFields == nil {
@@ -68,6 +70,7 @@ func (h *ErrorHandler) handleError(w http.ResponseWriter, r *http.Request, err e
 
 	if config.GetEnv() != "local" && statusCode >= http.StatusInternalServerError {
 		h.logger.Error("http error occurred", err)
+		
 		httpErr.Message = "Internal Server Error"
 		httpErr.InvalidFields = nil
 	}

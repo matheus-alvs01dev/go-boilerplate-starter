@@ -45,9 +45,9 @@ func zapWriteSyncer(env string) zapcore.WriteSyncer {
 }
 
 func zapLevel(env string) zapcore.LevelEnabler {
-	// if env == "staging" {
-	//	return zap.InfoLevel
-	// }
+	if env == "staging" {
+		return zap.InfoLevel
+	}
 
 	return zap.DebugLevel
 }
